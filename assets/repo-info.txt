@@ -1,0 +1,3 @@
+biorxiv-mcp
+
+bioRxiv/medRxiv MCP Server — fetches preprint metadata and parses JATS XML full text for LLM consumption.
