@@ -27,9 +27,18 @@ export class BiorxivClient {
   async fetchXml(url: string): Promise<string | null> {
     await this.rateLimit();
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/xml, text/xml' },
+      });
       if (!res.ok) return null;
-      return await res.text();
+      const text = await res.text();
+      if (text.includes('Just a moment') || text.includes('cf-browser-verification')) {
+        return null;
+      }
+      if (!text.includes('<article') && !text.startsWith('<?xml')) {
+        return null;
+      }
+      return text;
     } catch {
       return null;
     }

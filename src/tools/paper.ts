@@ -46,7 +46,7 @@ export async function biorxivPaper(client: BiorxivClient, args: PaperArgs): Prom
       fullText = parsed || null;
       if (!parsed) fullTextError = 'JATS XML parsed but no body content found';
     } else {
-      fullTextError = 'JATS XML fetch unavailable';
+      fullTextError = 'Full text XML unavailable (bioRxiv restricts programmatic access; medRxiv full text is accessible)';
     }
   } else {
     fullTextError = 'No JATS XML URL in metadata';

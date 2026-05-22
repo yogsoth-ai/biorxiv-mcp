@@ -70,4 +70,16 @@ describe('BiorxivClient', () => {
 
     expect(result).toBeNull();
   });
+
+  it('returns null when Cloudflare challenge is detected', async () => {
+    const cfHtml = '<!DOCTYPE html><html><head><title>Just a moment...</title></head><body>cf challenge</body></html>';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(cfHtml, { status: 200 }),
+    );
+
+    const client = new BiorxivClient();
+    const result = await client.fetchXml('https://www.biorxiv.org/content/early/2024/01/01/test.source.xml');
+
+    expect(result).toBeNull();
+  });
 });
