@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article>
+  <body>
+    <sec id="s1">
+      <title>Introduction</title>
+      <p>This is the <italic>first</italic> paragraph of the introduction.</p>
+      <p>This paragraph has a citation <xref ref-type="bibr" rid="r1">[1]</xref> and <bold>bold text</bold>.</p>
+    </sec>
+    <sec id="s2">
+      <title>Results</title>
+      <p>We found significant results with p &lt; 0.05.</p>
+      <sec id="s2a">
+        <title>Subsection A</title>
+        <p>Nested section content with <sup>superscript</sup> and <sub>subscript</sub>.</p>
+      </sec>
+      <fig id="f1">
+        <label>Figure 1</label>
+        <caption><p>This figure should be skipped.</p></caption>
+      </fig>
+    </sec>
+    <sec id="s3">
+      <title>Discussion</title>
+      <p>Final discussion paragraph.</p>
+      <table-wrap id="t1">
+        <label>Table 1</label>
+      </table-wrap>
+    </sec>
+  </body>
+</article>
