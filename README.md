@@ -1,51 +1,43 @@
-# @yogsoth-ai/biorxiv-mcp
+# biorxiv-mcp
 
-MCP server for fetching bioRxiv and medRxiv preprint metadata and full text by DOI.
+MCP server that turns a **bioRxiv DOI into clean markdown full text**, plus free
+relevance search. (medRxiv has its own package, `medrxiv-mcp`.)
 
-## What it does
+## Two tools
 
-Given a DOI, returns structured metadata (title, authors, abstract, category, license, etc.) plus the full paper text parsed from JATS XML into clean markdown-style plain text suitable for LLM consumption.
+- `search_preprints(query, limit=20)` → `[{doi, title, abstract, date}]` — free, via Europe PMC.
+- `fetch_fulltext(doi)` → markdown full text — reads the official Requester-Pays S3 bucket.
 
-- **bioRxiv**: metadata + abstract always available; full text best-effort (www.biorxiv.org has Cloudflare protection)
-- **medRxiv**: metadata + full text reliably available
+## Requires your own AWS key (Requester-Pays)
 
-## Tools
+bioRxiv full text is only reachable via the official `s3://biorxiv-src-monthly`
+Text-and-Data-Mining bucket, which is **Requester-Pays**: **you** supply an AWS key
+and **your** account pays. Costs are tiny: the first fetch in a given month indexes
+that month once (~$0.03); each `fetch_fulltext` after that is well under $0.01;
+`search_preprints` is free.
 
-### `paper`
+Set up an IAM user with `AmazonS3ReadOnlyAccess`, create an access key, and put it
+in your `.mcp.json`:
 
-Fetch a preprint by DOI.
-
-**Parameters:**
-- `doi` (string, required) — bioRxiv/medRxiv DOI (e.g. `10.1101/2024.01.02.573835`)
-- `server` (enum: `biorxiv` | `medrxiv`, default: `biorxiv`) — which preprint server to query
-
-**Returns:** JSON with `doi`, `title`, `authors`, `authorCorresponding`, `institution`, `date`, `version`, `category`, `license`, `abstract`, `fullText`, `fullTextError`, `published`
-
-## Setup
-
-```json
+```jsonc
 {
   "mcpServers": {
-    "@yogsoth-ai/biorxiv-mcp": {
-      "command": "node",
-      "args": ["--import", "tsx/esm", "<path-to>/biorxiv-mcp/src/server.ts"]
+    "biorxiv": {
+      "command": "uvx",
+      "args": ["biorxiv-mcp"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "<your key id>",
+        "AWS_SECRET_ACCESS_KEY": "<your secret>",
+        "AWS_DEFAULT_REGION": "us-east-1"
+      }
     }
   }
 }
 ```
 
-## Development
-
-```bash
-npm install
-npm test              # unit tests (mocked, fast)
-npm run test:integration  # live API tests (requires network)
-```
-
-## Known limitations
-
-bioRxiv's www subdomain is protected by Cloudflare's managed challenge, which blocks programmatic JATS XML fetching. The server gracefully degrades: metadata and abstract are always returned, but `fullText` may be `null` for bioRxiv papers (with `fullTextError` explaining why). medRxiv does not have this restriction.
+Optional env: `RXIV_CACHE_DIR` (where the local DOI->UUID sqlite cache lives;
+default `~/.cache/rxiv-mcp/`), `RXIV_SCAN_CONCURRENCY` (default 16).
 
 ## License
 
-Apache-2.0
+Apache-2.0.
